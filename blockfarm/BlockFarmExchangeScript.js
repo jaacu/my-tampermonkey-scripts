@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Calculate blockfarm exchange date
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      1.0.0
 // @description  calculates if the plant harvest time is before or after the next exchange day
-// @author       You
+// @author       jaacu
 // @match        https://blockfarm.club/farm/*
 // @icon         https://www.google.com/s2/favicons?domain=blockfarm.club
 // @grant        none
@@ -12,14 +12,14 @@
 (function () {
     'use strict';
 
-    Date.prototype.addDays = function(days) {
+    Date.prototype.addDays = function (days) {
         this.setDate(this.getDate() + parseInt(days));
         return this;
     };
 
     const extraWords = "Harvest on : ";
     const exchangeDay = 2; // Numeric day of the week the exange day, starts at sunday = 0
-    
+
     /**
      * Parses a utc date string into a utc date obj
      *
@@ -32,7 +32,7 @@
         let secondHalf = parts[1].split(':');
         let tempDate = new Date();
         tempDate.setUTCFullYear(firstHalf[0]);
-        tempDate.setUTCMonth(parseInt(firstHalf[1]) - 1 );
+        tempDate.setUTCMonth(parseInt(firstHalf[1]) - 1);
         tempDate.setUTCDate(firstHalf[2]);
 
         tempDate.setUTCHours(secondHalf[0]);
@@ -41,12 +41,12 @@
 
         return tempDate;
     }
-    
+
     let getNextExchangeDayUTC = () => {
-        let today = new Date(); 
-        let dateUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() , 0, 0, 0));
-        for(let i = 0; i < 8; i++) {
-            if (exchangeDay - 1 == dateUTC.getDay()  ) break;
+        let today = new Date();
+        let dateUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0));
+        for (let i = 0; i < 8; i++) {
+            if (exchangeDay - 1 == dateUTC.getDay()) break;
             dateUTC.addDays(1);
         }
         return dateUTC;
@@ -65,9 +65,9 @@
         document.querySelectorAll('[id^="clock"]').forEach(plant => {
             let dateString = plant.innerText.substr(extraWords.length);
             let utcDate = parseStringToUtcDate(dateString);
-            console.log('The dates', utcDate, exchangeDayDate);
             let isBeforeNextExangeDay = utcDate < exchangeDayDate;
             let selectedClass = isBeforeNextExangeDay ? 'before-exchange' : 'after-exchange';
+
             plant.classList.add(selectedClass)
         })
     }
