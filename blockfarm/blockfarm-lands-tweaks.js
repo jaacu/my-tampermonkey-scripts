@@ -76,9 +76,12 @@
         let floatingButton = document.createElement('div');
         floatingButton.innerText = 'Generate harvest events';
         floatingButton.classList.add('floating-button')
-        floatingButton.addEventListener('click', generateICSFile(plantsDates));
+        floatingButton.addEventListener('click', function (event) {
+            generateICSFile(plantsDates);
+        });
         document.body.appendChild(floatingButton);
     }
+
 
     /**
      * Parses a utc date string into a utc date obj
@@ -165,7 +168,7 @@
             let utcDate = parseStringToUtcDate(dateString);
             let isBeforeNextExangeDay = utcDate < exchangeDayDate;
             let selectedClass = isBeforeNextExangeDay ? 'before-exchange' : 'after-exchange';
-            
+
             let plantName = knownNames.find((name) => {
                 return imgNode.includes(name)
             })
