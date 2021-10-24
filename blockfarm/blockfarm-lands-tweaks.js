@@ -19,7 +19,10 @@
 
     const extraWords = "Harvest on : ";
     const exchangeDay = 2; // Numeric day of the week the exange day, starts at sunday = 0
+    const knownNames = ['bella', 'crystal', 'jimmy']
+
     let plantsDates = [];
+    let plantsNames = [];
 
     const loadExternalScripts = () => {
         // Load external scripts
@@ -35,12 +38,17 @@
         }
         var cal = ics();
         plantsDates.forEach((date, index) => {
-            let eventName = `Harvest plant ${index + 1}`
+            let name = capitalize(plantsNames[index])
+            let eventName = `Harvest plant ${name} ${index + 1}`
             let startDate = date.toString();
-            cal.addEvent(eventName, 'You can harvest a plant now', 'Blockfarm', startDate, startDate);
+            cal.addEvent(eventName, `You can harvest a plant now (${name})`, 'Blockfarm', startDate, startDate);
         })
         cal.download()
     }
+
+    function capitalize(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+      }
 
     const addMenuButton = () => {
         let floatingButton = document.createElement('div');
@@ -120,11 +128,16 @@
         const exchangeDayDate = getNextExchangeDayUTC();
 
         document.querySelectorAll('[id^="clock"]').forEach(plant => {
+            let imgNode = plant.parentElement.parentElement.getElementsByTagName('img')[1].src.toLocaleLowerCase()
             let dateString = plant.innerText.substr(extraWords.length);
             let utcDate = parseStringToUtcDate(dateString);
             let isBeforeNextExangeDay = utcDate < exchangeDayDate;
             let selectedClass = isBeforeNextExangeDay ? 'before-exchange' : 'after-exchange';
-
+            
+            let plantName = knownNames.find((name) => {
+                return imgNode.includes(name)
+            })
+            plantsNames.push(plantName ?? 'unkown')
             plantsDates.push(utcDate);
 
             plant.classList.add(selectedClass)
