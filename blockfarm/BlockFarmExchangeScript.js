@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Calculate blockfarm exchange date
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  calculates if the plant harvest time is before or after the next exchange day
 // @author       jaacu
 // @match        https://blockfarm.club/farm/*
@@ -19,6 +19,36 @@
 
     const extraWords = "Harvest on : ";
     const exchangeDay = 2; // Numeric day of the week the exange day, starts at sunday = 0
+    let plantsDates = [];
+
+    const loadExternalScripts = () => {
+        // Load external scripts
+        let scriptElement = document.createElement('script');
+        scriptElement.setAttribute('src', "https://cdn.jsdelivr.net/gh/nwcell/ics.js/ics.deps.min.js");
+        document.head.appendChild(scriptElement);
+    }
+
+    const generateICSFile = () => {
+        if (plantsDates.length == 0) {
+            alert('No harvest events detected.');
+            return;
+        }
+        var cal = ics();
+        plantsDates.forEach((date, index) => {
+            let eventName = `Harvest plant ${index + 1}`
+            let startDate = date.toString();
+            cal.addEvent(eventName, 'You can harvest a plant now', 'Blockfarm', startDate, startDate);
+        })
+        cal.download()
+    }
+
+    const addMenuButton = () => {
+        let floatingButton = document.createElement('div');
+        floatingButton.innerText = 'Generate harvest events';
+        floatingButton.style = 'border: 5px solid red; position: fixed; z-index: 999999; top: 25%; right: 10%; background: white; border-radius: 10%;';
+        floatingButton.addEventListener('click', generateICSFile);
+        document.body.appendChild(floatingButton);
+    }
 
     /**
      * Parses a utc date string into a utc date obj
@@ -68,10 +98,14 @@
             let isBeforeNextExangeDay = utcDate < exchangeDayDate;
             let selectedClass = isBeforeNextExangeDay ? 'before-exchange' : 'after-exchange';
 
+            plantsDates.push(utcDate);
+
             plant.classList.add(selectedClass)
         })
     }
 
+    loadExternalScripts();
     addNewStyles();
     calculateExchangeColor();
+    addMenuButton();
 })();
