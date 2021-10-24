@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Blockfarm land improvements
 // @namespace    http://tampermonkey.net/
-// @version      1.0.2
+// @version      1.0.3
 // @description  calculates if the plant harvest time is before or after the next exchange day
 // @author       jaacu
 // @match        https://blockfarm.club/farm/*
@@ -12,6 +12,12 @@
 (function () {
     'use strict';
 
+    /**
+     * Adds days to the current Date instance
+     * 
+     * @param {integer|string} days The amounts of days to add 
+     * @returns {Date}
+     */
     Date.prototype.addDays = function (days) {
         this.setDate(this.getDate() + parseInt(days));
         return this;
@@ -21,6 +27,9 @@
     const exchangeDay = 2; // Numeric day of the week the exange day, starts at sunday = 0
     let plantsDates = [];
 
+    /**
+     * Loads the external ics.js files
+     */
     const loadExternalScripts = () => {
         // Load external scripts
         let scriptElement = document.createElement('script');
@@ -28,13 +37,18 @@
         document.head.appendChild(scriptElement);
     }
 
-    const generateICSFile = () => {
-        if (plantsDates.length == 0) {
+    /**
+     * Generates an download a ics file with the events in the dates parameter
+     * 
+     * @param {Date[]} dates An array of the dates of the events
+     */
+    const generateICSFile = (dates) => {
+        if (dates.length == 0) {
             alert('No harvest events detected.');
             return;
         }
         var cal = ics();
-        plantsDates.forEach((date, index) => {
+        dates.forEach((date, index) => {
             let eventName = `Harvest plant ${index + 1}`
             let startDate = date.toString();
             cal.addEvent(eventName, 'You can harvest a plant now', 'Blockfarm', startDate, startDate);
@@ -42,19 +56,22 @@
         cal.download()
     }
 
+    /**
+     * Adds the floating button menu element
+     */
     const addMenuButton = () => {
         let floatingButton = document.createElement('div');
         floatingButton.innerText = 'Generate harvest events';
         floatingButton.classList.add('floating-button')
-        floatingButton.addEventListener('click', generateICSFile);
+        floatingButton.addEventListener('click', generateICSFile(plantsDates));
         document.body.appendChild(floatingButton);
     }
 
     /**
      * Parses a utc date string into a utc date obj
      *
-     * @param stringDate A date string in the format YYYY-MM-DD HH:mm:ss. Example: 2021-10-25 00:48:38
-     * @returns Date The utc date obj
+     * @param {string} stringDate A date string in the format YYYY-MM-DD HH:mm:ss. Example: 2021-10-25 00:48:38
+     * @returns {Date} The utc date obj
      */
     let parseStringToUtcDate = (stringDate) => {
         let parts = stringDate.split(' ')
@@ -72,7 +89,11 @@
         return tempDate;
     }
 
-    let getNextExchangeDayUTC = () => {
+    /**
+     * Get the next exchange day (UTC)
+     * @returns {Date} 
+     */
+    const getNextExchangeDayUTC = () => {
         let today = new Date();
         let dateUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 0, 0, 0));
         for (let i = 0; i < 8; i++) {
@@ -82,7 +103,10 @@
         return dateUTC;
     }
 
-    let addNewStyles = () => {
+    /**
+     * Adds the new style element to the dom
+     */
+    const addNewStyles = () => {
         let style = document.createElement('style');
         style.innerHTML = `
             .before-exchange { color: #31dd31 !important; }
@@ -115,7 +139,10 @@
         document.getElementsByTagName('head')[0].appendChild(style);
     }
 
-    let calculateExchangeColor = () => {
+    /**
+     * Adds the classes to the plants
+     */
+    const calculateExchangeColor = () => {
         // Get all visible elements
         const exchangeDayDate = getNextExchangeDayUTC();
 
