@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Calculate blockfarm exchange date
+// @name         Blockfarm land improvements
 // @namespace    http://tampermonkey.net/
 // @version      1.0.2
 // @description  calculates if the plant harvest time is before or after the next exchange day
