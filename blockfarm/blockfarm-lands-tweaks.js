@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Blockfarm land improvements
 // @namespace    http://tampermonkey.net/
-// @version      1.0.3
+// @version      1.0.4
 // @description  calculates if the plant harvest time is before or after the next exchange day
 // @author       jaacu
 // @match        https://blockfarm.club/farm/*
@@ -23,9 +23,21 @@
         return this;
     };
 
+    /**
+     * Capitalize strings
+     * @returns {string} The capitalized string
+     */
+    String.prototype.capitalize = function () {
+        this.charAt(0).toUpperCase() + this.slice(1);
+        return this;
+    }
+
     const extraWords = "Harvest on : ";
     const exchangeDay = 2; // Numeric day of the week the exange day, starts at sunday = 0
+    const knownNames = ['bella', 'crystal', 'jimmy']
+
     let plantsDates = [];
+    let plantsNames = [];
 
     /**
      * Loads the external ics.js files
@@ -49,9 +61,10 @@
         }
         var cal = ics();
         dates.forEach((date, index) => {
-            let eventName = `Harvest plant ${index + 1}`
+            let name = plantsNames[index].capitalize()
+            let eventName = `Harvest ${name} ${index + 1}`
             let startDate = date.toString();
-            cal.addEvent(eventName, 'You can harvest a plant now', 'Blockfarm', startDate, startDate);
+            cal.addEvent(eventName, `You can harvest a ${name} ${index + 1} now`, 'Blockfarm', startDate, startDate);
         })
         cal.download()
     }
@@ -147,11 +160,16 @@
         const exchangeDayDate = getNextExchangeDayUTC();
 
         document.querySelectorAll('[id^="clock"]').forEach(plant => {
+            let imgNode = plant.parentElement.parentElement.getElementsByTagName('img')[1].src.toLocaleLowerCase()
             let dateString = plant.innerText.substr(extraWords.length);
             let utcDate = parseStringToUtcDate(dateString);
             let isBeforeNextExangeDay = utcDate < exchangeDayDate;
             let selectedClass = isBeforeNextExangeDay ? 'before-exchange' : 'after-exchange';
-
+            
+            let plantName = knownNames.find((name) => {
+                return imgNode.includes(name)
+            })
+            plantsNames.push(plantName ?? 'unkown')
             plantsDates.push(utcDate);
 
             plant.classList.add(selectedClass)
