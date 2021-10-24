@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Calculate blockfarm exchange date
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.0.2
 // @description  calculates if the plant harvest time is before or after the next exchange day
 // @author       jaacu
 // @match        https://blockfarm.club/farm/*
@@ -45,7 +45,7 @@
     const addMenuButton = () => {
         let floatingButton = document.createElement('div');
         floatingButton.innerText = 'Generate harvest events';
-        floatingButton.style = 'border: 5px solid red; position: fixed; z-index: 999999; top: 25%; right: 10%; background: white; border-radius: 10%;';
+        floatingButton.classList.add('floating-button')
         floatingButton.addEventListener('click', generateICSFile);
         document.body.appendChild(floatingButton);
     }
@@ -84,7 +84,34 @@
 
     let addNewStyles = () => {
         let style = document.createElement('style');
-        style.innerHTML = '.before-exchange { color: #31dd31 !important; } .after-exchange { color: #ff3232 !important;  }';
+        style.innerHTML = `
+            .before-exchange { color: #31dd31 !important; }
+            .after-exchange { color: #ff3232 !important;  }
+            .floating-button {
+                background-color: #4CAF50;
+                border: none;
+                color: white;
+                padding: 10px 5px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                cursor: pointer;
+                -webkit-transition-duration: 0.4s; 
+                transition-duration: 0.4s;
+                position: fixed;
+                z-index: 999999;
+                top: 85%;
+                right: 2%;
+                max-width: 125px;
+                box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+                border-radius: 20px;
+            }
+            .floating-button:hover {
+                box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 50px 0 rgba(0,0,0,0.19);
+            }
+        `;
         document.getElementsByTagName('head')[0].appendChild(style);
     }
 
