@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Blockfarm land improvements
 // @namespace    http://tampermonkey.net/
-// @version      1.0.4
+// @version      1.0.5
 // @description  calculates if the plant harvest time is before or after the next exchange day
 // @author       jaacu
 // @match        https://blockfarm.club/farm/*
@@ -28,13 +28,12 @@
      * @returns {string} The capitalized string
      */
     String.prototype.capitalize = function () {
-        this.charAt(0).toUpperCase() + this.slice(1);
-        return this;
+        return this.charAt(0).toUpperCase() + this.slice(1);
     }
 
     const extraWords = "Harvest on : ";
     const exchangeDay = 2; // Numeric day of the week the exange day, starts at sunday = 0
-    const knownNames = ['bella', 'crystal', 'jimmy']
+    const knownNames = ['bella', 'crystal', 'jimmy', 'lunar', 'soli' ]
 
     let plantsDates = [];
     let plantsNames = [];
