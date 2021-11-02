@@ -33,7 +33,7 @@
 
     const extraWords = "Harvest on : ";
     const exchangeDay = 2; // Numeric day of the week the exange day, starts at sunday = 0
-    const knownNames = ['bella', 'crystal', 'jimmy', 'lunar', 'soli' ]
+    const knownNames = ['bella', 'crystal', 'jimmy', 'lunar', 'soli']
 
     let plantsDates = [];
     let plantsNames = [];
@@ -58,14 +58,20 @@
             alert('No harvest events detected.');
             return;
         }
-        var cal = ics();
+        let domain = 'myland'; // default domain
+        if (window.location.href.indexOf("goddess") > -1) {
+            domain = 'goddess';
+        } else {
+            domain += window.location.href.split("/").pop(); // Get land ID
+        }
+        var cal = ics(domain);
         dates.forEach((date, index) => {
             let name = plantsNames[index].capitalize()
-            let eventName = `Harvest ${name} ${index + 1}`
+            let eventName = `Harvest ${name} ${index + 1} in ${domain}`
             let startDate = date.toString();
             cal.addEvent(eventName, `You can harvest a ${name} ${index + 1} now`, 'Blockfarm', startDate, startDate);
         })
-        cal.download()
+        cal.download(`blockfarm-events-in-${domain}`)
     }
 
     /**
